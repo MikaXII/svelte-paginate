@@ -6,21 +6,39 @@
 
   const dispatch = createEventDispatcher()
 
-  export let totalItems = 0
-  export let pageSize = 1
-  export let currentPage = 1
-  export let limit: number | undefined = undefined
-  export let showStepOptions = false
+  interface Props {
+    totalItems?: number;
+    pageSize?: number;
+    currentPage?: number;
+    limit?: number | undefined;
+    showStepOptions?: boolean;
+    number?: import('svelte').Snippet<[any]>;
+    ellipsis?: import('svelte').Snippet;
+    prev?: import('svelte').Snippet;
+    next?: import('svelte').Snippet;
+  }
 
-  $: options = generateNavigationOptions({
+  let {
+    totalItems = 0,
+    pageSize = 1,
+    currentPage = 1,
+    limit = undefined,
+    showStepOptions = false,
+    number,
+    ellipsis,
+    prev,
+    next
+  }: Props = $props();
+
+  let options = $derived(generateNavigationOptions({
     totalItems,
     pageSize,
     currentPage,
     limit,
     showStepOptions
-  })
+  }))
 
-  $: totalPages = Math.ceil(totalItems / pageSize)
+  let totalPages = $derived(Math.ceil(totalItems / pageSize))
 
   function handleOptionClick (option: NavigationOption) {
     dispatch('setPage', { page: option.value })
@@ -41,18 +59,18 @@
       class:ellipsis="{option.type === 'symbol' && option.symbol === SymbolType.ELLIPSIS}"
       class:active="{option.type === 'number' && option.value === currentPage}"
       role="presentation"
-      on:click="{() => handleOptionClick(option)}"
+      onclick={() => handleOptionClick(option)}
     >
       {#if option.type === 'number'}
-        <slot name="number" value="{option.value}">
+        {#if number}{@render number({ value: option.value, })}{:else}
           <span>{option.value}</span>
-        </slot>
+        {/if}
       {:else if option.type === 'symbol' && option.symbol === SymbolType.ELLIPSIS}
-        <slot name="ellipsis">
+        {#if ellipsis}{@render ellipsis()}{:else}
           <span>...</span>
-        </slot>
+        {/if}
       {:else if option.type === 'symbol' && option.symbol === SymbolType.PREVIOUS_PAGE}
-        <slot name="prev">
+        {#if prev}{@render prev()}{:else}
           <svg
             style="width:24px;height:24px"
             viewBox="0 0 24 24"
@@ -62,9 +80,9 @@
               d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"
             />
           </svg>
-        </slot>
+        {/if}
       {:else if option.type === 'symbol' && option.symbol === SymbolType.NEXT_PAGE}
-        <slot name="next">
+        {#if next}{@render next()}{:else}
           <svg
             style="width:24px;height:24px"
             viewBox="0 0 24 24"
@@ -74,7 +92,7 @@
               d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
             />
           </svg>
-        </slot>
+        {/if}
       {/if}
     </span>
   {/each}

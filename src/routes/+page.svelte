@@ -11,17 +11,17 @@
     .map((value, index) => ({
       title: `Item ${index + 1}`
     }))
-  let currentPage = 1
+  let currentPage = $state(1)
   let pageSize = 4
-  $: paginatedItems = paginate({ items, pageSize, currentPage })
+  let paginatedItems = $derived(paginate({ items, pageSize, currentPage }))
 </script>
 
 <main>
   <ul class="items">
     {#each paginatedItems as item (item.title)}
     <li
-      out:fade="{{duration: 200}}"
-      in:fade="{{delay: 200}}"
+      out:fade|global="{{duration: 200}}"
+      in:fade|global="{{delay: 200}}"
       class="item"
     >
       {item.title}

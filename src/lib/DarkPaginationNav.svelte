@@ -1,10 +1,15 @@
-<script>
+<script lang="ts">
   import PaginationNav from './PaginationNav.svelte'
+  interface Props {
+    [key: string]: any
+  }
+
+  let { ...props }: Props = $props();
 </script>
 
 <div class="dark-pagination-nav">
   <PaginationNav
-    {...$$props}
+    {...props}
     on:setPage
   />
 </div>
